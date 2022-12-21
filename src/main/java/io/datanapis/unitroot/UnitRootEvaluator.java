@@ -131,6 +131,132 @@ public class UnitRootEvaluator {
         return pValue;
     }
 
+    public static double criticalValue(double level, int nobs, int niv, TestType testType, RegressionType type) {
+        JGMData data = JGMData.getInstance(niv, testType, type);
+        double criticalValue = fcrit(data, level, 2.0, nobs, NP);
+        return criticalValue;
+    }
+
+    private static double fcrit(JGMData data, double level, double precrt, int nobs, int np) {
+        if (level < 0.0001 || level > 0.9999)
+            throw new IllegalArgumentException("level must be between 0.0001 and 0.9999");
+
+        double[] crits = new double[JGMData.NROWS];
+        double[] yvect;
+        double[] xmat;
+        double[] omega;
+
+        double[] beta = new double[data.getNvar()];
+
+        double diffMin = Double.MAX_VALUE;
+        int imin = Probs.PROBS.length;
+        for (int i = 0; i < Probs.PROBS.length; i++) {
+            double diff = Math.abs(level - Probs.PROBS[i]);
+            if (diff < diffMin) {
+                diffMin = diff;
+                imin = i;
+                if (diffMin < 1d - 6)
+                    break;
+            }
+        }
+
+        int nph = np / 2;
+        int npTop = JGMData.NROWS - 1 - nph;
+        if (imin > nph && imin < npTop) {
+            // imin is not too close to the end. Use np points around stat.
+            yvect = new double [np];
+            xmat = new double [np * 4];
+            for (int i = 0; i < np; i++) {
+                int ic = imin - nph + i;
+
+                System.arraycopy(data.getBeta(), ic * data.getNvar(), beta, 0, data.getNvar());
+                crits[ic] = eval(beta, data.getModel(), data.getNreg(), nobs);
+
+                yvect[i] = crits[ic];
+                initialize(xmat, i*4, Probs.CNORM[ic]);
+            }
+
+            // form omega matrix
+            omega = new double [np * np];
+            for (int i = 0; i < np; i++) {
+                for (int j = i; j < np; j++) {
+                    int ic = imin - nph + i;
+                    int jc = imin - nph + j;
+
+                    double top = Probs.PROBS[ic] * (1.0 - Probs.PROBS[jc]);
+                    double bot = Probs.PROBS[jc] * (1.0 - Probs.PROBS[ic]);
+
+                    omega[i*np + j] = data.getWght()[ic] * data.getWght()[jc] * Math.sqrt(top/bot);
+                }
+            }
+            fill(omega, np);
+
+            return criticalValueEstimate(xmat, yvect, omega, np, precrt, level);
+        } else {
+            /* imin is close to one of the ends. Use points from imin +/- nph to end. */
+            int np1;
+            if (imin < np) {
+                np1 = imin + nph;
+                if (np1 < 5)
+                    np1 = 5;
+
+                yvect = new double [np1];
+                xmat = new double [np1 * 4];
+
+                for (int i = 0; i < np1; i++) {
+                    System.arraycopy(data.getBeta(), i * data.getNvar(), beta, 0, data.getNvar());
+                    crits[i] = eval(beta, data.getModel(), data.getNreg(), nobs);
+
+                    yvect[i] = crits[i];
+                    initialize(xmat, i*4, Probs.CNORM[i]);
+                }
+            } else {
+                np1 = JGMData.NROWS - 1 - imin + nph;
+                if (np1 < 5)
+                    np1 = 5;
+
+                yvect = new double [np1];
+                xmat = new double [np1 * 4];
+
+                for (int i = 0; i < np1; i++) {
+                    int ic = JGMData.NROWS - 1 - i;
+
+                    System.arraycopy(data.getBeta(), ic * data.getNvar(), beta, 0, data.getNvar());
+                    crits[ic] = eval(beta, data.getModel(), data.getNreg(), nobs);
+
+                    yvect[i] = crits[ic];
+                    initialize(xmat, i*4, Probs.CNORM[ic]);
+                }
+            }
+
+            // form omega matrix
+            omega = new double [np1 * np1];
+            for (int i = 0; i < np1; i++) {
+                for (int j = i; j < np1; j++) {
+                    if (imin < np) {
+                        double top = Probs.PROBS[i] * (1.0 - Probs.PROBS[j]);
+                        double bot = Probs.PROBS[j] * (1.0 - Probs.PROBS[i]);
+                        omega[i*np1 + j] = data.getWght()[i] * data.getWght()[j] * Math.sqrt(top/bot);
+                    } else {
+                        /* This is to avoid numerical singularities at the upper end */
+                        omega[i*np1 + j] = 0.0;
+                        if (i == j)
+                            omega[i*np1 + j] = 1.0;
+                    }
+                }
+            }
+            fill(omega, np1);
+
+            return criticalValueEstimate(xmat, yvect, omega, np1, precrt, level);
+        }
+    }
+
+    public static double pValue(double statistic, int nobs, int niv, TestType testType, RegressionType type) {
+        JGMData data = JGMData.getInstance(niv, testType, type);
+        double pValue = fpval(data, statistic, 2.0, nobs, NP);
+        return pValue;
+    }
+
     private static double fpval(JGMData data, double stat, double precrt, int nobs, int np) {
         double[] crits = new double [JGMData.NROWS];
         double[] yvect;
@@ -183,7 +309,7 @@ public class UnitRootEvaluator {
             }
             fill(omega, np);
 
-            return estimate(xmat, yvect, omega, np, precrt, stat);
+            return pValueEstimate(xmat, yvect, omega, np, precrt, stat);
         } else {
             /* imin is close to one of the ends. Use points from imin +/- nph to end. */
             int np1;
@@ -232,7 +358,7 @@ public class UnitRootEvaluator {
             }
             fill(omega, np1);
 
-            return estimate(xmat, yvect, omega, np1, precrt, stat);
+            return pValueEstimate(xmat, yvect, omega, np1, precrt, stat);
         }
     }
 
@@ -260,11 +386,38 @@ public class UnitRootEvaluator {
         }
     }
 
-    private static double estimate(double[] xmat, double[] yvect, double[] omega, int np, double precrt, double stat) {
+    private static double criticalValueEstimate(double[] xmat, double[] yvect, double[] omega, int np, double precrt, double size) {
         GLS gls = new GLS(xmat, yvect, omega, np, 4, true);
         gls.gls();
 
-        double pval;
+        // check to see if gamma(4) is needed
+        double[] gamma = gls.getBeta();
+        double sd4 = Math.sqrt((gls.getSsrt()/(np-4)) * gls.getXomx()[3*4 + 3]);
+        double tTest = Math.abs(gamma[3]) / sd4;
+
+        double criticalValue;
+        if (tTest > precrt) {
+            double anorm = innorz(size);
+            criticalValue = gamma[0] + gamma[1]*anorm + gamma[2]*Math.pow(anorm,2) + gamma[3]*Math.pow(anorm,3);
+        } else {
+            /* adjust xmat from np x 4 to np x 3 */
+            xmat = reshape(xmat, np);
+            gls = new GLS(xmat, yvect, omega, np, 3, false);
+            gls.gls();
+            gamma = gls.getBeta();
+
+            double anorm = innorz(size);
+            criticalValue = gamma[0] + gamma[1]*anorm + gamma[2]*Math.pow(anorm,2);
+        }
+
+        return criticalValue;
+    }
+
+    private static double pValueEstimate(double[] xmat, double[] yvect, double[] omega, int np, double precrt, double stat) {
+        GLS gls = new GLS(xmat, yvect, omega, np, 4, true);
+        gls.gls();
+
+        double pValue;
 
         // check to see if gamma(4) is needed
         double[] gamma = gls.getBeta();
@@ -272,7 +425,7 @@ public class UnitRootEvaluator {
         double tTest = Math.abs(gamma[3]) / sd4;
         if (tTest > precrt) {
             double crfit = gamma[0] + gamma[1]*stat + gamma[2]*Math.pow(stat,2) + gamma[3]*Math.pow(stat,3);
-            pval = ddnor(crfit);
+            pValue = ddnor(crfit);
         } else {
             /* adjust xmat from np x 4 to np x 3 */
             xmat = reshape(xmat, np);
@@ -280,10 +433,10 @@ public class UnitRootEvaluator {
             gls.gls();
             gamma = gls.getBeta();
             double crfit = gamma[0] + gamma[1]*stat + gamma[2]*Math.pow(stat,2);
-            pval = ddnor(crfit);
+            pValue = ddnor(crfit);
         }
 
-        return pval;
+        return pValue;
     }
 
     private static class GLS {
