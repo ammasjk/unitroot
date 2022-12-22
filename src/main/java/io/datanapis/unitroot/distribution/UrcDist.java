@@ -9,12 +9,38 @@ package io.datanapis.unitroot.distribution;
 public class UrcDist {
     private static final int NP = 9;
 
+    /**
+     * Calculate the critical value for a given level under a given set of parameters. Please see
+     *   James G. MacKinnon, "Numerical distribution functions for unit root and cointegration tests,"
+     *   Journal of Applied Econometrics, 11, 1996, 601-618.
+     * for details.
+     *
+     * @param niv number of integrating variables, 1 will test for unit root, 2 through 12 will test for cointegration
+     * @param testType the test type, tau vs z. See paper for details
+     * @param type the number of regression variables, i.e. non-constant, constant, constant with trend, constant with trend and trend squared
+     * @param nobs the number of observations, 0 will return the asymptotic value
+     * @param level the level for the critical value, must be between 0.0001 and 0.9999
+     * @return the critical value
+     */
     public static double criticalValue(int niv, TestType testType, RegressionType type, int nobs, double level) {
         JGMData data = JGMData.getInstance(niv, testType, type);
         double criticalValue = fcrit(data, level, 2.0, nobs, NP);
         return criticalValue;
     }
 
+    /**
+     * Helper method and the core implementation for calculating the critical value for a given level. Please see
+     *   James G. MacKinnon, "Numerical distribution functions for unit root and cointegration tests,"
+     *   Journal of Applied Econometrics, 11, 1996, 601-618.
+     * for details.
+     *
+     * @param data the surface data estimated by the paper through simulations
+     * @param level the level for the critical value, must be between 0.0001 and 0.9999
+     * @param precrt the threshold for selecting gamma(3) vs gamma(4). 2.0 is a good threshold
+     * @param nobs the number of observations, 0 implies asymptotic
+     * @param np the number of points to use to estimate the critical value
+     * @return the critical value
+     */
     public static double fcrit(JGMData data, double level, double precrt, int nobs, int np) {
         if (level < 0.0001 || level > 0.9999)
             throw new IllegalArgumentException("level must be between 0.0001 and 0.9999");
@@ -99,13 +125,39 @@ public class UrcDist {
         }
     }
 
+    /**
+     * Calculate the p-value for a given statistic for a given set of parameters. Please see
+     *   James G. MacKinnon, "Numerical distribution functions for unit root and cointegration tests,"
+     *   Journal of Applied Econometrics, 11, 1996, 601-618.
+     * for details.
+     *
+     * @param niv number of integrating variables, 1 will test for unit root, 2 through 12 will test for cointegration
+     * @param testType the test type, tau vs z. See paper for details
+     * @param type the number of regression variables, i.e. non-constant, constant, constant with trend, constant with trend and trend squared
+     * @param nobs the number of observations, 0 will return the asymptotic value
+     * @param statistic the statistic for which the p-value needs to be calculated
+     * @return the critical value
+     */
     public static double pValue(int niv, TestType testType, RegressionType type, int nobs, double statistic) {
         JGMData data = JGMData.getInstance(niv, testType, type);
         double pValue = fpval(data, statistic, 2.0, nobs, NP);
         return pValue;
     }
 
-    public static double fpval(JGMData data, double stat, double precrt, int nobs, int np) {
+    /**
+     * Helper method and the core implementation for calculating the critical value for a given level. Please see
+     *   James G. MacKinnon, "Numerical distribution functions for unit root and cointegration tests,"
+     *   Journal of Applied Econometrics, 11, 1996, 601-618.
+     * for details.
+     *
+     * @param data the surface data estimated by the paper through simulations
+     * @param statistic the statistic for which the p-value needs to be calculated
+     * @param precrt the threshold for selecting gamma(3) vs gamma(4). 2.0 is a good threshold
+     * @param nobs the number of observations, 0 implies asymptotic
+     * @param np the number of points to use to estimate the critical value
+     * @return the critical value
+     */
+    public static double fpval(JGMData data, double statistic, double precrt, int nobs, int np) {
         double[] crits = new double [JGMData.NROWS];
         double[] yvect;
         double[] xmat;
@@ -122,7 +174,7 @@ public class UrcDist {
         double diffMin = Double.MAX_VALUE;
         int minIndex = JGMData.NROWS;
         for (int i = 0; i < JGMData.NROWS; i++) {
-            double diff = Math.abs(stat - crits[i]);
+            double diff = Math.abs(statistic - crits[i]);
             if (diff < diffMin) {
                 diffMin = diff;
                 minIndex = i;
@@ -143,7 +195,7 @@ public class UrcDist {
 
             // form omega matrix
             double[] omega = buildOmegaMiddle(data, np, minIndex, nph);
-            return pValueEstimate(xmat, yvect, omega, np, precrt, stat);
+            return pValueEstimate(xmat, yvect, omega, np, precrt, statistic);
         } else {
             /* minIndex is close to one of the ends. Use points from minIndex +/- nph to end. */
             int np1;
@@ -176,7 +228,7 @@ public class UrcDist {
 
             // form omega matrix
             double[] omega = buildOmegaEnd(data, np, minIndex, np1);
-            return pValueEstimate(xmat, yvect, omega, np1, precrt, stat);
+            return pValueEstimate(xmat, yvect, omega, np1, precrt, statistic);
         }
     }
 
