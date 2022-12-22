@@ -1,4 +1,4 @@
-package io.datanapis.unitroot.data;
+package io.datanapis.unitroot.distribution;
 
 import java.io.IOException;
 

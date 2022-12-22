@@ -1,4 +1,4 @@
-package io.datanapis.unitroot.data;
+package io.datanapis.unitroot.distribution;
 
 import java.io.*;
 import java.util.regex.Matcher;
@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
  * James G. MacKinnon, "Numerical distribution functions for unit root and cointegration tests,"
  *                     Journal of Applied Econometrics, 11, 1996, 601-618.
  */
-public class DataReader {
+class DataReader {
     Pattern DATA_START_PATTERN = Pattern.compile("^([a-z]+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)");
 
     public JGMData read(int niv, TestType tt, RegressionType rt) throws IOException {
