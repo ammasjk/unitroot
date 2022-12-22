@@ -1,4 +1,4 @@
-package io.datanapis.unitroot.data;
+package io.datanapis.unitroot.distribution;
 
 public enum RegressionType {
     NC(1),      /* No intercept or trend */
