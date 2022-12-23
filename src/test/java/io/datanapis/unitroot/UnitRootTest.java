@@ -104,13 +104,17 @@ public class UnitRootTest {
     };
 
     private static double[] data(Function<JGMTestData,Double> function) {
-        double[] rS = new double [jgmTestData.length];
+        return data(function, 0, jgmTestData.length);
+    }
 
-        for (int i = 0; i < jgmTestData.length; i++) {
-            rS[i] = function.apply(jgmTestData[i]);
+    private static double[] data(Function<JGMTestData,Double> function, int start, int length) {
+        double[] values = new double [length];
+
+        for (int i = start; i < start + length; i++) {
+            values[i - start] = function.apply(jgmTestData[i]);
         }
 
-        return rS;
+        return values;
     }
 
     private final static double[] residuals = {
@@ -312,7 +316,7 @@ public class UnitRootTest {
     @Test
     public void testOne() {
         UnitRootEvaluator evaluator;
-        evaluator = new UnitRootEvaluator(data(JGMTestData::rS), 1, UnitRootEvaluator.Type.CONSTANT);
+        evaluator = new UnitRootEvaluator(data(JGMTestData::rS, 5, 37), 1, UnitRootEvaluator.Type.CONSTANT);
 
         System.out.printf("p-value (tau) = %f\n", evaluator.pValue(TestType.TAU));
         System.out.printf("p-value (z)   = %f\n", evaluator.pValue(TestType.Z));
