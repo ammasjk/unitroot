@@ -1,5 +1,11 @@
 package io.datanapis.unitroot.distribution;
 
+/**
+ * Class containing probabilities and corresponding z-scores
+ *
+ * James G. MacKinnon, "Numerical distribution functions for unit root and cointegration tests,"
+ * Journal of Applied Econometrics, 11, 1996, 601-618.
+ */
 class Probs {
     static final double[] PROBS = {
             0.0001, 0.0002, 0.0005, 0.0010, 0.0020, 0.0030, 0.0040, 0.0050, 0.0060, 0.0070,

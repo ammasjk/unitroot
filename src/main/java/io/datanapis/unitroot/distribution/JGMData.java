@@ -2,6 +2,12 @@ package io.datanapis.unitroot.distribution;
 
 import java.io.IOException;
 
+/**
+ * Class for holding the distribution data for a given set of parameters. See
+ *
+ * James G. MacKinnon, "Numerical distribution functions for unit root and cointegration tests,"
+ * Journal of Applied Econometrics, 11, 1996, 601-618.
+ */
 public class JGMData {
     public static final int NROWS = 221;
 
