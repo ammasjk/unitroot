@@ -316,9 +316,10 @@ public class UnitRootTest {
     @Test
     public void testOne() {
         UnitRootEvaluator evaluator;
-        evaluator = new UnitRootEvaluator(data(JGMTestData::rS, 5, 37), 1, UnitRootEvaluator.Type.CONSTANT);
+        evaluator = new UnitRootEvaluator(data(JGMTestData::rS, 5, 37), 2, UnitRootEvaluator.Type.CONSTANT);
 
-        System.out.printf("p-value (tau) = %f\n", evaluator.pValue(TestType.TAU));
-        System.out.printf("p-value (z)   = %f\n", evaluator.pValue(TestType.Z));
+        UnitRootResult result = evaluator.test();
+        System.out.printf("p-value (tau) = %f\n", result.pValueTau());
+        System.out.printf("p-value (z)   = %f\n", result.pValueZ());
     }
 }
