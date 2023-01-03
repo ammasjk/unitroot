@@ -3,12 +3,14 @@ package io.datanapis.unitroot.distribution;
 import java.io.IOException;
 
 /**
- * Class for holding the distribution data for a given set of parameters. See
+ * Author: Jayakumar Muthukumarasamy
+ *
+ * Class containing distribution data for a given set of parameters.
  *
  * James G. MacKinnon, "Numerical distribution functions for unit root and cointegration tests,"
  * Journal of Applied Econometrics, 11, 1996, 601-618.
  */
-public class JGMData {
+public class MackinnonData {
     public static final int NROWS = 221;
 
     private final String name;
@@ -19,7 +21,7 @@ public class JGMData {
     private final double[] beta;
     private final double[] wght;
 
-    protected JGMData(String name, int nz, int nreg, int model, int minSize, double[] beta) {
+    protected MackinnonData(String name, int nz, int nreg, int model, int minSize, double[] beta) {
         this.name = name;
         this.nz = nz;
         this.nreg = nreg;
@@ -70,10 +72,10 @@ public class JGMData {
         return wght;
     }
 
-    public static JGMData getInstance(int niv, TestType tt, RegressionType rt) {
+    public static MackinnonData getInstance(int niv, TestType tt, RegressionType rt) {
         try {
             DataReader dataReader = new DataReader();
-            JGMData data = dataReader.read(niv, tt, rt);
+            MackinnonData data = dataReader.read(niv, tt, rt);
             return data;
         } catch (IOException e) {
             return null;

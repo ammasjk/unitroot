@@ -1,14 +1,17 @@
 package io.datanapis.unitroot;
 
-import io.datanapis.unitroot.distribution.JGMData;
+import io.datanapis.unitroot.distribution.MackinnonData;
 import io.datanapis.unitroot.distribution.RegressionType;
 import io.datanapis.unitroot.distribution.TestType;
 import io.datanapis.unitroot.distribution.UrcDist;
 import org.apache.commons.math3.stat.regression.OLSMultipleLinearRegression;
 
-import java.util.Arrays;
 
-
+/**
+ * Author: Jayakumar Muthukumarasamy
+ *
+ * Port of the method unitrootTest from the R package fUnitRoots
+ */
 public class UnitRootEvaluator {
     private static final int NP = 9;
 
@@ -131,12 +134,12 @@ public class UnitRootEvaluator {
 
             double pValueTau = -1.0, pValueZ = -1.0;
             double statistic = coefficients[index] / stdErrors[index];
-            JGMData data;
-            data = JGMData.getInstance(1, TestType.TAU, type.getValue());
+            MackinnonData data;
+            data = MackinnonData.getInstance(1, TestType.TAU, type.getValue());
             if (data != null) {
                 pValueTau = UrcDist.fpval(data, statistic, 2.0, n, NP);
             }
-            data = JGMData.getInstance(1, TestType.Z, type.getValue());
+            data = MackinnonData.getInstance(1, TestType.Z, type.getValue());
             if (data != null) {
                 pValueZ = UrcDist.fpval(data, statistic, 2.0, n, NP);
             }

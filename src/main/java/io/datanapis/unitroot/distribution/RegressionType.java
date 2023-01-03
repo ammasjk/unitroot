@@ -1,3 +1,6 @@
+/**
+ * Author: Jayakumar Muthukumarasamy
+ */
 package io.datanapis.unitroot.distribution;
 
 public enum RegressionType {

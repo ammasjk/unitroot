@@ -1,3 +1,6 @@
+/**
+ * Author: Jayakumar Muthukumarasamy
+ */
 package io.datanapis.unitroot;
 
 import io.datanapis.unitroot.distribution.RegressionType;
@@ -57,6 +60,12 @@ public class UnitRootTest {
         }
     }
 
+    /**
+     * Test data from the paper
+     *
+     * James G. MacKinnon, "Numerical Distribution Functions for Unit Root and Cointegration Tests",
+     * Journal of Applied Econometrics, Vol. 11, No. 6, 1996, pp. 601-618.
+     */
     private final static JGMTestData[] jgmTestData = new JGMTestData[] {
             new JGMTestData(1952, 2.46347, 4.49336, 1.06583, 3.24167, 3.53917),
             new JGMTestData(1953, -0.93133, -0.24884, 1.69083, 3.44667, 3.76917),

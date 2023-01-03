@@ -5,14 +5,16 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Generate Java data file equivalents of the response surface coefficients produced by James G MacKinnon
+ * Author: Jayakumar Muthukumarasamy
+ *
+ * Read and return response surface coefficients produced by James G MacKinnon
  * James G. MacKinnon, "Numerical distribution functions for unit root and cointegration tests,"
  *                     Journal of Applied Econometrics, 11, 1996, 601-618.
  */
 class DataReader {
     Pattern DATA_START_PATTERN = Pattern.compile("^([a-z]+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)");
 
-    public JGMData read(int niv, TestType tt, RegressionType rt) throws IOException {
+    public MackinnonData read(int niv, TestType tt, RegressionType rt) throws IOException {
         String desiredTag = getTag(niv, tt, rt);
         String name = name(niv);
         InputStream inputStream = getFileStream(name);
@@ -32,7 +34,7 @@ class DataReader {
                 if (matcher.find()) {
                     String tag = matcher.group(1);
                     if (!desiredTag.equals(tag)) {
-                        for (int i = 0; i < JGMData.NROWS; i++) {
+                        for (int i = 0; i < MackinnonData.NROWS; i++) {
                             bufferedReader.readLine();
                         }
                     } else {
@@ -42,9 +44,9 @@ class DataReader {
                         int minSize = Integer.parseInt(matcher.group(5));
 
                         int count = count(model);
-                        double[] data = new double [JGMData.NROWS * count];
+                        double[] data = new double [MackinnonData.NROWS * count];
 
-                        for (int i = 0; i < JGMData.NROWS; i++) {
+                        for (int i = 0; i < MackinnonData.NROWS; i++) {
                             line = bufferedReader.readLine();
                             if (line == null) {
                                 throw new IOException("EOF when EOF not expected!");
@@ -61,7 +63,7 @@ class DataReader {
                         }
 
                         inputStream.close();
-                        return new JGMData(tag, nz, nreg, model, minSize, data);
+                        return new MackinnonData(tag, nz, nreg, model, minSize, data);
                     }
                 } else {
                     inputStream.close();

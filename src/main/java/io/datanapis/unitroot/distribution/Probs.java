@@ -1,7 +1,9 @@
 package io.datanapis.unitroot.distribution;
 
 /**
- * Class containing probabilities and corresponding z-scores
+ * Author: Jayakumar Muthukumarasamy
+ *
+ * Class containing probabilities and corresponding z-scores. Contains the data from the file probs.tab
  *
  * James G. MacKinnon, "Numerical distribution functions for unit root and cointegration tests,"
  * Journal of Applied Econometrics, 11, 1996, 601-618.

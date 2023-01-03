@@ -1,5 +1,10 @@
 package io.datanapis.unitroot;
 
+/**
+ * Author: Jayakumar Muthukumarasamy
+ *
+ * Result of testing for unit root
+ */
 public class UnitRootResult {
     private final UnitRootEvaluator.Type type;
     private final int lag;

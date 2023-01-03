@@ -1,6 +1,8 @@
 package io.datanapis.unitroot.distribution;
 
 /**
+ * Author: Jayakumar Muthukumarasamy
+ *
  * This is a Java port of the program http://qed.econ.queensu.ca/pub/faculty/mackinnon/numdist/urcdist.f
  *
  * James G. MacKinnon, "Numerical distribution functions for unit root and cointegration tests,"
@@ -23,7 +25,7 @@ public class UrcDist {
      * @return the critical value
      */
     public static double criticalValue(int niv, TestType testType, RegressionType type, int nobs, double level) {
-        JGMData data = JGMData.getInstance(niv, testType, type);
+        MackinnonData data = MackinnonData.getInstance(niv, testType, type);
         double criticalValue = fcrit(data, level, 2.0, nobs, NP);
         return criticalValue;
     }
@@ -41,11 +43,11 @@ public class UrcDist {
      * @param np the number of points to use to estimate the critical value
      * @return the critical value
      */
-    public static double fcrit(JGMData data, double level, double precrt, int nobs, int np) {
+    public static double fcrit(MackinnonData data, double level, double precrt, int nobs, int np) {
         if (level < 0.0001 || level > 0.9999)
             throw new IllegalArgumentException("level must be between 0.0001 and 0.9999");
 
-        double[] crits = new double[JGMData.NROWS];
+        double[] crits = new double[MackinnonData.NROWS];
         double[] yvect;
         double[] xmat;
 
@@ -64,7 +66,7 @@ public class UrcDist {
         }
 
         int nph = np / 2;
-        int npTop = JGMData.NROWS - 1 - nph;
+        int npTop = MackinnonData.NROWS - 1 - nph;
         if (minIndex > nph && minIndex < npTop) {
             // minIndex is not too close to the end. Use np points around stat.
             yvect = new double [np];
@@ -101,7 +103,7 @@ public class UrcDist {
                     initialize(xmat, i*4, Probs.CNORM[i]);
                 }
             } else {
-                np1 = JGMData.NROWS - 1 - minIndex + nph;
+                np1 = MackinnonData.NROWS - 1 - minIndex + nph;
                 if (np1 < 5)
                     np1 = 5;
 
@@ -109,7 +111,7 @@ public class UrcDist {
                 xmat = new double [np1 * 4];
 
                 for (int i = 0; i < np1; i++) {
-                    int ic = JGMData.NROWS - 1 - i;
+                    int ic = MackinnonData.NROWS - 1 - i;
 
                     System.arraycopy(data.getBeta(), ic * data.getNvar(), beta, 0, data.getNvar());
                     crits[ic] = eval(beta, data.getModel(), data.getNreg(), nobs);
@@ -139,7 +141,7 @@ public class UrcDist {
      * @return the critical value
      */
     public static double pValue(int niv, TestType testType, RegressionType type, int nobs, double statistic) {
-        JGMData data = JGMData.getInstance(niv, testType, type);
+        MackinnonData data = MackinnonData.getInstance(niv, testType, type);
         double pValue = fpval(data, statistic, 2.0, nobs, NP);
         return pValue;
     }
@@ -157,23 +159,23 @@ public class UrcDist {
      * @param np the number of points to use to estimate the critical value
      * @return the critical value
      */
-    public static double fpval(JGMData data, double statistic, double precrt, int nobs, int np) {
-        double[] crits = new double [JGMData.NROWS];
+    public static double fpval(MackinnonData data, double statistic, double precrt, int nobs, int np) {
+        double[] crits = new double [MackinnonData.NROWS];
         double[] yvect;
         double[] xmat;
 
         double[] beta = new double [data.getNvar()];
 
         // first, compute all the estimated critical values
-        for (int i = 0; i < JGMData.NROWS; i++) {
+        for (int i = 0; i < MackinnonData.NROWS; i++) {
             System.arraycopy(data.getBeta(), i * data.getNvar(), beta, 0, data.getNvar());
             crits[i] = eval(beta, data.getModel(), data.getNreg(), nobs);
         }
 
         // find critical value closest to test statistic
         double diffMin = Double.MAX_VALUE;
-        int minIndex = JGMData.NROWS;
-        for (int i = 0; i < JGMData.NROWS; i++) {
+        int minIndex = MackinnonData.NROWS;
+        for (int i = 0; i < MackinnonData.NROWS; i++) {
             double diff = Math.abs(statistic - crits[i]);
             if (diff < diffMin) {
                 diffMin = diff;
@@ -182,7 +184,7 @@ public class UrcDist {
         }
 
         int nph = np / 2;
-        int npTop = JGMData.NROWS - 1 - nph;
+        int npTop = MackinnonData.NROWS - 1 - nph;
         if (minIndex > nph && minIndex < npTop) {
             // minIndex is not too close to the end. Use np points around stat.
             yvect = new double [np];
@@ -212,7 +214,7 @@ public class UrcDist {
                     initialize(xmat, i*4, crits[i]);
                 }
             } else {
-                np1 = JGMData.NROWS - 1 - minIndex + nph;
+                np1 = MackinnonData.NROWS - 1 - minIndex + nph;
                 if (np1 < 5)
                     np1 = 5;
 
@@ -220,7 +222,7 @@ public class UrcDist {
                 xmat = new double [np1 * 4];
 
                 for (int i = 0; i < np1; i++) {
-                    int ic = JGMData.NROWS - 1 - i;
+                    int ic = MackinnonData.NROWS - 1 - i;
                     yvect[i] = Probs.CNORM[ic];
                     initialize(xmat, i*4, crits[ic]);
                 }
@@ -232,7 +234,7 @@ public class UrcDist {
         }
     }
 
-    private static double[] buildOmegaMiddle(JGMData data, int np, int minIndex, int nph) {
+    private static double[] buildOmegaMiddle(MackinnonData data, int np, int minIndex, int nph) {
         double[] omega = new double [np * np];
         for (int i = 0; i < np; i++) {
             for (int j = i; j < np; j++) {
@@ -249,7 +251,7 @@ public class UrcDist {
         return omega;
     }
 
-    private static double[] buildOmegaEnd(JGMData data, int np, int minIndex, int np1) {
+    private static double[] buildOmegaEnd(MackinnonData data, int np, int minIndex, int np1) {
         double[] omega;
         omega = new double [np1 * np1];
         for (int i = 0; i < np1; i++) {

@@ -1,5 +1,10 @@
 package io.datanapis.unitroot;
 
+/**
+ * Author: Jayakumar Muthukumarasamy
+ *
+ * R compatible methods
+ */
 public class RUtils {
     /**
      * Return lagged difference of x. The first value will be x[lag] - x[0], the second value will be x[1+lag] - x[1]
