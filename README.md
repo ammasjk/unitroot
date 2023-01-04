@@ -18,7 +18,7 @@ The Java files corresponding to the port are available in the package io.datanap
 which the implementation relies on is in the resources folder.
 
 For ease of use, this version is wrapped in a simpler to use API - UnitRootEvaluator. However, this wrapper only provides an API to test for unit root. 
-The core implementation can test for both unit roots and cointegration for up to 12 lags. The core implementation can also calculate
+The core implementation can test for both unit roots and cointegration for up to 12 series. The core implementation can also calculate
 critical-value for a given confidence level.
 
 The wrapper API and implementation is ported from the R-package fUnitRoots. Specifically, it is a port of the function unitrootTest.
