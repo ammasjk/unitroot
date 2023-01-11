@@ -4,7 +4,7 @@
 
     <groupId>io.datanapis</groupId>
     <artifactId>unitroot</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
@@ -27,7 +27,7 @@
 
     <scm>
         <developerConnection>scm:git:https://github.com/ammasjk/unitroot.git</developerConnection>
-        <tag>unitroot-0.1.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <build>
